@@ -1,128 +1,142 @@
+Fitted: {'FATIGUE': 0.984, 'MOM_DECAY': 0.733, 'INTL': 2.318, 'ERA': 2.172} | log-loss 0.345
 
-== MCU CALIBRATION ==  model 22,589 vs actual 22,589  (scalar 2.31)
-Iron Man                       697     585    19%
-The Incredible Hulk            334     265    26%
-Iron Man 2                     780     624    25%
-Thor                           477     449     6%
-Captain America                427     371    15%
-The Avengers                  1726    1520    14%
-Iron Man 3                    1291    1215     6%
-Thor 2                         543     645   -16%
-Cap 2                          801     714    12%
-Guardians                      292     773   -62%
-Avengers 2                    1750    1405    25%
-Ant-Man                        259     519   -50%
-Civil War                     1797    1153    56%
-Doctor Strange                 409     677   -40%
-Guardians 2                    500     863   -42%
-Homecoming                     995     880    13%
-Ragnarok                       808     854    -5%
-Black Panther                  582    1347   -57%
-Infinity War                  2572    2048    26%
-Ant-Man 2                      321     623   -48%
-Captain Marvel                 483    1128   -57%
-Endgame                       3533    2799    26%
-Far From Home                 1212    1132     7%
-Mean abs film error: 28%
-Fitted ERA = 2.309
+== MCU (in-sample) ==  model 19,306 vs actual 22,589
+Iron Man                       696     585    19%
+The Incredible Hulk            327     265    23%
+Iron Man 2                     759     624    22%
+Thor                           453     449     1%
+Captain America                404     371     9%
+The Avengers                  1419    1520    -7%
+Iron Man 3                    1258    1215     4%
+Thor 2                         500     645   -22%
+Cap 2                          729     714     2%
+Guardians                      258     773   -67%
+Avengers 2                    1412    1405     0%
+Ant-Man                        225     519   -57%
+Civil War                     1512    1153    31%
+Doctor Strange                 361     677   -47%
+Guardians 2                    446     863   -48%
+Homecoming                     887     880     1%
+Ragnarok                       726     854   -15%
+Black Panther                  531    1347   -61%
+Infinity War                  2067    2048     1%
+Ant-Man 2                      280     623   -55%
+Captain Marvel                 403    1128   -64%
+Endgame                       2582    2799    -8%
+Far From Home                 1071    1132    -5%
+Mean abs film error: 25%
 
-== HOLDOUT: STAR WARS (no retuning) ==  model 7,867 vs actual 5,926  (scalar 1.00)
-Force Awakens                 2324    2068    12%
-Rogue One                      552    1056   -48%
-Last Jedi                     2256    1332    69%
-Solo                           726     393    85%
-Rise of Skywalker             2009    1077    87%
-Mean abs film error: 60%
+== STAR WARS (in-sample) ==  model 6,553 vs actual 5,926
+Force Awakens                 1967    2068    -5%
+Rogue One                      517    1056   -51%
+Last Jedi                     1887    1332    42%
+Solo                           664     393    69%
+Rise of Skywalker             1519    1077    41%
+Mean abs film error: 42%
+
+== FAST & FURIOUS (HELD OUT, never fit) ==  model 4,683 vs actual 4,926
+Fast Five                      691     626    10%
+Fast & Furious 6               814     789     3%
+Furious 7                     1376    1515    -9%
+Fate of the Furious           1170    1236    -5%
+Hobbs & Shaw                   631     760   -17%
+Mean abs film error: 9%
 
 -- Ch1 --
-Superman                              good open   229  WW   1458  leggy         mom +0.10  eq {'Superman': 1.15}
-Batman                                good open   282  WW   1798  leggy         mom +0.18  eq {'Batman': 1.28}
-Wonder Woman                          good open   161  WW   1029  leggy         mom +0.24  eq {'Wonder Woman': 1.05}
-Superman 2: World's Finest            good open   298  WW   1900  leggy         mom +0.30  eq {'Superman': 1.23, 'Batman': 1.36}
-Green Lantern and Martian Manhunter     ok open    68  WW    387  front-loaded  mom +0.24  eq {'Green Lantern': 0.7, 'Martian Manhunter': 0.6}
-Justice League                        good open   361  WW   2301  front-loaded  mom +0.34  eq {'Superman': 1.28, 'Batman': 1.41, 'Wonder Woman': 1.1, 'Flash': 0.85}
-Ch1 subtotal: 8,873
+Superman                              good open   146 WW    786 leggy         mom +0.10 eq {'Superman': 1.15}
+Batman                                good open   180 WW    969 leggy         mom +0.17 eq {'Batman': 1.28}
+Wonder Woman                          good open   103 WW    553 leggy         mom +0.23 eq {'Wonder Woman': 1.05}
+Superman 2: World's Finest            good open   186 WW    999 leggy         mom +0.25 eq {'Superman': 1.23, 'Batman': 1.36}
+Green Lantern and Martian Manhunter     ok open    42 WW    203 front-loaded  mom +0.18 eq {'Green Lantern': 0.7, 'Martian Manhunter': 0.6}
+Justice League                        good open   203 WW   1093 front-loaded  mom +0.25 eq {'Superman': 1.28, 'Batman': 1.41, 'Wonder Woman': 1.1, 'Flash': 0.85}
+Ch1 subtotal: 4,604
 
 -- Ch2 --
-The Flash                             good open   136  WW    866  leggy         mom +0.37  eq {'Flash': 0.9}
-Superman 3                            good open   269  WW   1719  leggy         mom +0.40  eq {'Superman': 1.33, 'Wonder Woman': 1.15}
-Aquaman                               good open   132  WW    845  leggy         mom +0.40  eq {'Aquaman': 0.85}
-Batman 2                                ok open   326  WW   1865  front-loaded  mom +0.32  eq {'Batman': 1.52}
-Green Arrow vs. Deathstroke           good open    57  WW    363  leggy         mom +0.36  eq {'Green Arrow': 0.65, 'Deathstroke': 0.68}
-JL: Sinestro Corps War                good open   373  WW   2380  front-loaded  mom +0.40  eq {'Superman': 1.38, 'Batman': 1.68, 'Wonder Woman': 1.2, 'Flash': 0.95, 'Green Lantern': 0.86}
-Ch2 subtotal: 8,038
+The Flash                             good open    82 WW    443 leggy         mom +0.25 eq {'Flash': 0.9}
+Superman 3                            good open   162 WW    873 leggy         mom +0.25 eq {'Superman': 1.33, 'Wonder Woman': 1.15}
+Aquaman                               good open    79 WW    426 leggy         mom +0.25 eq {'Aquaman': 0.85}
+Batman 2                                ok open   199 WW    958 front-loaded  mom +0.18 eq {'Batman': 1.5}
+Green Arrow vs. Deathstroke           good open    32 WW    173 leggy         mom +0.23 eq {'Green Arrow': 0.65, 'Deathstroke': 0.68}
+JL: Sinestro Corps War                good open   203 WW   1093 front-loaded  mom +0.25 eq {'Superman': 1.38, 'Batman': 1.5, 'Wonder Woman': 1.2, 'Flash': 0.95, 'Green Lantern': 0.86}
+Ch2 subtotal: 3,965
 
 -- Ch3 --
-Wonder Woman 2                        good open   218  WW   1390  leggy         mom +0.40  eq {'Wonder Woman': 1.25}
-Shazam!                               good open    73  WW    464  leggy         mom +0.40  eq {'Shazam': 0.65}
-Superman 4                            good open   335  WW   2139  leggy         mom +0.40  eq {'Superman': 1.65}
-The Flash 2                           good open   125  WW    797  leggy         mom +0.40  eq {'Flash': 1.0}
-New Gods                              good open   120  WW    763  leggy         mom +0.40  eq {'Orion': 0.55, 'Mister Miracle': 0.55}
-Teen Titans                             ok open    54  WW    307  front-loaded  mom +0.32  eq {'Nightwing': 0.6, 'Raven': 0.5, 'Starfire': 0.5, 'Beast Boy': 0.5, 'Cyborg': 0.6}
-JL: Tower of Babel                    good open   340  WW   2171  leggy         mom +0.40  eq {'Superman': 1.81, 'Batman': 1.89, 'Wonder Woman': 1.41, 'Flash': 1.16, 'Aquaman': 1.01, 'Green Lantern': 0.91}
-Ch3 subtotal: 8,031
+Wonder Woman 2                        good open   134 WW    723 leggy         mom +0.25 eq {'Wonder Woman': 1.25}
+Shazam!                               good open    43 WW    233 leggy         mom +0.25 eq {'Shazam': 0.65}
+Superman 4                            good open   199 WW   1070 leggy         mom +0.25 eq {'Superman': 1.5}
+The Flash 2                           good open    75 WW    404 leggy         mom +0.25 eq {'Flash': 1.0}
+New Gods                              good open    64 WW    347 leggy         mom +0.25 eq {'Orion': 0.55, 'Mister Miracle': 0.55}
+Teen Titans                             ok open    32 WW    152 front-loaded  mom +0.18 eq {'Nightwing': 0.6, 'Raven': 0.5, 'Starfire': 0.5, 'Beast Boy': 0.5, 'Cyborg': 0.6}
+JL: Tower of Babel                    good open   175 WW    939 leggy         mom +0.25 eq {'Superman': 1.5, 'Batman': 1.5, 'Wonder Woman': 1.41, 'Flash': 1.16, 'Aquaman': 1.01, 'Green Lantern': 0.91}
+Ch3 subtotal: 3,868
 
 -- Ch4 --
-Batman 3                              good open   597  WW   3811  leggy         mom +0.40  eq {'Batman': 1.94}
-Aquaman 2                               ok open   187  WW   1070  front-loaded  mom +0.32  eq {'Aquaman': 1.01, 'Wonder Woman': 1.41}
-New Gods 2: Apokolips                 good open    66  WW    423  leggy         mom +0.36  eq {'Orion': 0.6, 'Mister Miracle': 0.6, 'Barda': 0.55}
-Green Arrow 2                           ok open    51  WW    290  front-loaded  mom +0.28  eq {'Green Arrow': 0.65, 'Deathstroke': 0.68}
-Wonder Woman 3                          ok open   199  WW   1137  front-loaded  mom +0.23  eq {'Wonder Woman': 1.41}
-Green Lantern: Blackest Night         good open   183  WW   1167  leggy         mom +0.33  eq {'Green Lantern': 0.96}
-Superman 5: Doomsday                 great open   644  WW   4678  leggy         mom +0.40  eq {'Superman': 1.91}
-Teen Titans 2                         good open    54  WW    347  leggy         mom +0.40  eq {'Nightwing': 0.65, 'Raven': 0.55, 'Starfire': 0.55, 'Beast Boy': 0.55, 'Cyborg': 0.65, 'Green Arrow': 0.7}
-New Gods 3: Fall of New Genesis       good open   132  WW    842  leggy         mom +0.40  eq {'Orion': 0.65, 'Mister Miracle': 0.65, 'Barda': 0.6}
-Cyborg                                  ok open    74  WW    423  front-loaded  mom +0.32  eq {'Cyborg': 0.76}
-JL: Anti-Life (Part 1)                good open   475  WW   3033  front-loaded  mom +0.40  eq {'Batman': 2.0, 'Wonder Woman': 1.57, 'Flash': 1.32, 'Aquaman': 1.06, 'Cyborg': 0.81, 'Green Lantern': 1.12}
-JL: Omega (Part 2)                    good open   583  WW   3720  front-loaded  mom +0.40  eq {'Superman': 1.96, 'Batman': 2.0, 'Wonder Woman': 1.62, 'Flash': 1.37, 'Aquaman': 1.11, 'Green Lantern': 1.17, 'Cyborg': 0.86}
-Ch4 subtotal: 20,940
+Batman 3                              good open   284 WW   1528 leggy         mom +0.25 eq {'Batman': 1.5}
+Aquaman 2                               ok open   114 WW    549 front-loaded  mom +0.18 eq {'Aquaman': 1.01, 'Wonder Woman': 1.41}
+New Gods 2: Apokolips                 good open    38 WW    205 leggy         mom +0.23 eq {'Orion': 0.6, 'Mister Miracle': 0.6, 'Barda': 0.55}
+Green Arrow 2                           ok open    30 WW    145 front-loaded  mom +0.17 eq {'Green Arrow': 0.65, 'Deathstroke': 0.68}
+Wonder Woman 3                          ok open   126 WW    608 front-loaded  mom +0.13 eq {'Wonder Woman': 1.41}
+Green Lantern: Blackest Night         good open   104 WW    557 leggy         mom +0.24 eq {'Green Lantern': 0.96}
+Superman 5: Doomsday                 great open   322 WW   1972 leggy         mom +0.25 eq {'Superman': 1.5}
+Teen Titans 2                         good open    32 WW    174 leggy         mom +0.25 eq {'Nightwing': 0.65, 'Raven': 0.55, 'Starfire': 0.55, 'Beast Boy': 0.55, 'Cyborg': 0.65, 'Green Arrow': 0.7}
+New Gods 3: Fall of New Genesis       good open    71 WW    382 leggy         mom +0.25 eq {'Orion': 0.65, 'Mister Miracle': 0.65, 'Barda': 0.6}
+Cyborg                                  ok open    44 WW    214 front-loaded  mom +0.18 eq {'Cyborg': 0.76}
+JL: Anti-Life (Part 1)                good open   236 WW   1269 front-loaded  mom +0.25 eq {'Batman': 1.5, 'Wonder Woman': 1.5, 'Flash': 1.32, 'Aquaman': 1.06, 'Cyborg': 0.81, 'Green Lantern': 1.12}
+JL: Omega (Part 2)                    good open   274 WW   1472 front-loaded  mom +0.25 eq {'Superman': 1.5, 'Batman': 1.5, 'Wonder Woman': 1.5, 'Flash': 1.37, 'Aquaman': 1.11, 'Green Lantern': 1.17, 'Cyborg': 0.86}
+Ch4 subtotal: 9,074
 
-Walkthrough total: 45,882  (chapter subtotals re-added: 45,882)
-TOTAL p10 38,807 | p50 43,598 | p90 48,208 | avg $1B films 16.7
+Walkthrough total: 21,512
+TOTAL p10 17,491 | p50 19,709 | p90 21,702 | avg $1B films 6.2
 Film                                    p10    p50    p90  P>=1B
-Superman                               1188   1501   1823    98%
-Batman                                 1370   1767   2200   100%
-Wonder Woman                            783   1010   1257    52%
-Superman 2: World's Finest             1436   1892   2375   100%
-Green Lantern and Martian Manhunter     306    395    500     0%
-Justice League                         1772   2346   2956   100%
-The Flash                               646    863   1090    23%
-Superman 3                             1236   1643   2089    99%
-Aquaman                                 602    772    969     7%
-Batman 2                               1370   1811   2338   100%
-Green Arrow vs. Deathstroke             254    333    426     0%
-JL: Sinestro Corps War                 1649   2197   2815   100%
-Wonder Woman 2                          968   1295   1677    87%
-Shazam!                                 348    442    547     0%
-Superman 4                             1523   2064   2634   100%
-The Flash 2                             543    719    921     4%
-New Gods                                531    691    869     1%
-Teen Titans                             234    301    383     0%
-JL: Tower of Babel                     1454   1966   2567   100%
-Batman 3                               2540   3480   4499   100%
-Aquaman 2                               743    990   1293    48%
-New Gods 2: Apokolips                   293    389    503     0%
-Green Arrow 2                           202    271    356     0%
-Wonder Woman 3                          812   1117   1481    68%
-Green Lantern: Blackest Night           857   1169   1527    74%
-Superman 5: Doomsday                   3064   4081   5184   100%
-Teen Titans 2                           255    334    426     0%
-New Gods 3: Fall of New Genesis         569    755    978     8%
-Cyborg                                  289    412    552     0%
-JL: Anti-Life (Part 1)                 2082   2845   3684   100%
-JL: Omega (Part 2)                     2422   3314   4312   100%
+Superman                                645    805    978     7%
+Batman                                  741    950   1188    39%
+Wonder Woman                            418    531    667     0%
+Superman 2: World's Finest              723    957   1213    42%
+Green Lantern and Martian Manhunter     125    193    293     0%
+Justice League                          767   1042   1334    57%
+The Flash                               309    428    550     0%
+Superman 3                              601    809   1034    14%
+Aquaman                                 302    386    488     0%
+Batman 2                                665    886   1143    28%
+Green Arrow vs. Deathstroke              92    146    230     0%
+JL: Sinestro Corps War                  684    949   1238    42%
+Wonder Woman 2                          456    656    857     2%
+Shazam!                                 138    214    326     0%
+Superman 4                              739   1000   1271    50%
+The Flash 2                             260    359    470     0%
+New Gods                                192    295    462     0%
+Teen Titans                              91    141    218     0%
+JL: Tower of Babel                      554    808   1095    19%
+Batman 3                                935   1380   1778    86%
+Aquaman 2                               344    485    640     0%
+New Gods 2: Apokolips                   107    172    274     0%
+Green Arrow 2                            76    124    188     0%
+Wonder Woman 3                          367    534    736     0%
+Green Lantern: Blackest Night           341    506    702     0%
+Superman 5: Doomsday                   1256   1659   2070    98%
+Teen Titans 2                           101    159    247     0%
+New Gods 3: Fall of New Genesis         200    321    503     0%
+Cyborg                                  113    205    281     0%
+JL: Anti-Life (Part 1)                  723   1094   1473    62%
+JL: Omega (Part 2)                      794   1262   1669    78%
 
 ### a) base
-TOTAL p10 38,687 | p50 43,568 | p90 48,235 | avg $1B films 16.7
+TOTAL p10 17,503 | p50 19,698 | p90 21,679 | avg $1B films 6.2
 
 ### b) weak Superman
-TOTAL p10 37,012 | p50 41,768 | p90 46,388 | avg $1B films 16.2
+TOTAL p10 16,530 | p50 18,778 | p90 20,847 | avg $1B films 5.1
 
 ### c) GL&MM hit
-TOTAL p10 39,300 | p50 44,242 | p90 48,688 | avg $1B films 16.8
+TOTAL p10 17,800 | p50 20,010 | p90 21,993 | avg $1B films 6.5
 
 ### d) all great
-TOTAL p10 58,868 | p50 60,974 | p90 63,028 | avg $1B films 20.6
+TOTAL p10 25,829 | p50 26,740 | p90 27,728 | avg $1B films 12.2
 
 ### e) Doomsday + Anti-Life flop
-TOTAL p10 35,893 | p50 40,401 | p90 44,830 | avg $1B films 16.6
+TOTAL p10 16,168 | p50 18,204 | p90 20,024 | avg $1B films 4.8
+
+===== PASS/FAIL BEFORE TRUSTING A DC NUMBER =====
+Holdout (Fast & Furious) error < 40%:   PASS (9%)
+No film p50 above $2.6B:                PASS (1,659)
+Double flop cuts total by more than 7%: PASS (8%)
+Expected path has some 'bad' grades:    FAIL (0 of 31)
