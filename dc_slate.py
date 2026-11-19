@@ -1,16 +1,16 @@
 import random, math
 
 # ===== 1. PARAMETERS =====
-P = dict(ERA=1.0, INTL=2.2, FATIGUE=0.96, MOM_DECAY=0.8,   # fitted
-         FAME=1.0,         # fitted: how much starting fame differences matter (1 = as typed)
-         BREAKOUT_P=0.08,  # fitted: odds of breakout (and of bust) for unknown leads
+P = dict(ERA=1.0, INTL=2.2, FATIGUE=0.96, MOM_DECAY=0.8,   # fitted on MCU + Star Wars
+         GAMMA=1.0,        # fitted: fame exponent (>1 spreads small and big names apart)
+         BREAKOUT_P=0.08,  # fitted: odds of breakout (and bust) for little-known leads
          MOM_CAP=0.25, EQ_CAP=1.5, NEG_MULT=2.5, EVD=0.7,
-         BASE0=50.0,       # same starting opening for every film; fame/rubric/events differentiate
-         DC_SCALE=0.8,     # ONE market knob: today's market vs the 2008-2019 comps (DC only)
+         BASE0=50.0,       # same starting opening for every film
+         DC_SCALE=0.8,     # ONE market knob, fitted on RECENT superhero films (not on Superman 2025)
          CEIL=2600)
-FIT_KEYS = ("ERA", "INTL", "FATIGUE", "MOM_DECAY", "FAME", "BREAKOUT_P")
-FIT_RANGE = dict(ERA=(.3, 2.5), INTL=(1.6, 2.8), FATIGUE=(.9, 1.0),
-                 MOM_DECAY=(.5, .9), FAME=(.4, 1.5), BREAKOUT_P=(0, .2))
+FIT_KEYS = ("ERA", "INTL", "FATIGUE", "MOM_DECAY", "GAMMA", "BREAKOUT_P")
+FIT_RANGE = dict(ERA=(.3, 6.0), INTL=(1.6, 2.8), FATIGUE=(.9, 1.0),
+                 MOM_DECAY=(.5, .9), GAMMA=(.5, 4.0), BREAKOUT_P=(0, .2))
 LEGS  = {"bad": 2.2, "ok": 2.6, "good": 2.9, "great": 3.3}
 SCORE = {"bad": -1, "ok": 0, "good": 1, "great": 2}
 
@@ -28,13 +28,13 @@ def derive(sc):
     gate = 1 - .03*max(0, H-2)
     return mkt, qi, dep, gate
 
-def grade(z):   # "great" is harder to earn than v2
+def grade(z):
     return "bad" if z < -.5 else "ok" if z < .25 else "good" if z < 1.0 else "great"
 
 # ===== 3. ENGINE =====
 def run_slate(films, scores, init_eq, rng=None, pins=None, det=False, dc=False):
     pins = pins or {}
-    d0 = lambda v: max(.3, 1 + P["FAME"]*(v - 1))
+    d0 = lambda v: max(.05, v ** P["GAMMA"])      # fame spreads out instead of shrinking
     eq = {c: d0(v) for c, v in init_eq.items()}
     dflt = d0(.6)
     mom, solos, out = 0.0, {}, []
@@ -47,10 +47,10 @@ def run_slate(films, scores, init_eq, rng=None, pins=None, det=False, dc=False):
         prior = sum(solos.get(c, 0) for c in L) / len(L)
         noise = 1.0
         if not det:
-            unk = e < .7
+            unk = e < d0(.7)
             s = .25 if unk else .12
             noise = rng.lognormvariate(-.5*s*s, s)
-            if unk:                              # breakout / bust for little-known leads
+            if unk:                               # breakout / bust for little-known leads
                 r = rng.random()
                 if r < P["BREAKOUT_P"]: noise *= 2.0
                 elif r > 1 - P["BREAKOUT_P"]: noise *= 0.6
@@ -64,10 +64,10 @@ def run_slate(films, scores, init_eq, rng=None, pins=None, det=False, dc=False):
         w = 1.5 if f["event"] >= 1.3 else 1.0
         mom = max(-P["MOM_CAP"], min(P["MOM_CAP"], P["MOM_DECAY"]*mom + .1*s_eff*w))
         for c in L:
-            eq[c] = min(P["EQ_CAP"], max(.3, eq.get(c, dflt) + .05*s_eff))
+            eq[c] = min(P["EQ_CAP"], max(.05, eq.get(c, dflt) + .05*s_eff))
             if f["event"] < 1.3: solos[c] = solos.get(c, 0) + 1
         for c in f["support"]:
-            eq[c] = min(P["EQ_CAP"], max(.3, eq.get(c, dflt) + .05 + .06*s_eff))
+            eq[c] = min(P["EQ_CAP"], max(.05, eq.get(c, dflt) + .05 + .06*s_eff))
         for c in f["tease"]:
             eq[c] = min(P["EQ_CAP"], eq.get(c, dflt) + .03)
         out.append(dict(name=f["name"], q=q, open=opening, ww=ww, legs=legs, mom=mom,
@@ -86,7 +86,7 @@ def stats(films, scores, eq, n=300, seed=7, dc=False, pins=None):
     return res, runs
 
 # ===== 4. COMPS: (name, leads, support, event, DOMESTIC OPENING $M, WORLDWIDE $M) =====
-# Openings and grosses are from memory -> have Claude Code VERIFY every number on Box Office Mojo.
+# ALL numbers are from memory -> have Claude Code VERIFY every one on Box Office Mojo.
 MCU = [
  ("Iron Man",["Iron Man"],[],1.0,98.6,585),("The Incredible Hulk",["Hulk"],[],1.0,55.4,265),
  ("Iron Man 2",["Iron Man"],["Black Widow"],1.0,128.1,624),("Thor",["Thor"],[],1.0,65.7,449),
@@ -127,11 +127,22 @@ FF = [("Fast Five",["Dom","Brian"],[],1.0,86.2,626),("Fast & Furious 6",["Dom","
 FF_SC = [(4,4,3,3,3,2,2),(4,4,3,3,3,2,2),(5,4,3,4,3,2,3),(4,4,3,3,3,2,3),(3,3,3,3,4,2,3)]
 FF_EQ = {"Dom":.9,"Brian":.8,"Hobbs":.7,"Shaw":.6}
 
+# Recent DC-universe films: used ONLY to fit DC_SCALE. Mostly poorly received, so the
+# scale is biased low: treat the result as a floor. VERIFY numbers (from memory).
+RECENT = [("The Flash",["Flash"],["Batman"],1.0,55.0,271),
+          ("Shazam 2",["Shazam"],[],1.0,30.1,134),
+          ("Blue Beetle",["Blue Beetle"],[],1.0,25.0,130),
+          ("Aquaman 2",["Aquaman"],[],1.0,27.7,434),
+          ("Black Adam",["Black Adam"],[],1.0,67.0,393)]
+RECENT_SC = [(3,4,3,3,3,2,3),(3,3,2,3,3,1,3),(3,3,2,3,3,1,3),(3,4,3,2,2,2,3),(3,4,3,3,3,1,3)]
+RECENT_EQ = {"Flash":.8,"Shazam":.6,"Blue Beetle":.4,"Aquaman":.8,"Black Adam":.5}
+
 def pack(rows, sc, eq):
     films = [F(r[0], r[1], r[3], support=r[2]) for r in rows]
     return dict(films=films, sc={r[0]: s for r, s in zip(rows, sc)}, eq=eq,
                 op=[r[4] for r in rows], ww=[r[5] for r in rows])
-SETS = {"MCU": pack(MCU, MCU_SC, MCU_EQ), "SW": pack(SW, SW_SC, SW_EQ), "FF": pack(FF, FF_SC, FF_EQ)}
+SETS = {"MCU": pack(MCU, MCU_SC, MCU_EQ), "SW": pack(SW, SW_SC, SW_EQ),
+        "FF": pack(FF, FF_SC, FF_EQ), "RECENT": pack(RECENT, RECENT_SC, RECENT_EQ)}
 
 # ===== 5. FIT + REPORT =====
 def loss(keys, n=200):
@@ -153,10 +164,24 @@ def fit(keys=("MCU", "SW"), iters=400, seed=0):
         if l < best[0]: best = (l, {k: P[k] for k in FIT_KEYS})
     P.update(best[1])
     print("Fitted:", {k: round(v, 3) for k, v in best[1].items()}, f"| loss {best[0]:.3f}")
+    for k in FIT_KEYS:                            # warn if the search is jammed against a limit
+        lo, hi = FIT_RANGE[k]
+        if P[k] < lo + .02*(hi-lo) or P[k] > hi - .02*(hi-lo):
+            print(f"  WARNING: {k} sits at its range limit -> structure may be wrong, not just the range")
 
-def report(title, key):
+def fit_dc_scale():
+    S, best = SETS["RECENT"], (9, .8)
+    for sc in [x/20 for x in range(6, 25)]:       # 0.30 to 1.20
+        P["DC_SCALE"] = sc
+        st, _ = stats(S["films"], S["sc"], S["eq"], n=200, dc=True)
+        l = sum(abs(math.log(s["w50"]/a)) for s, a in zip(st, S["ww"])) / len(st)
+        if l < best[0]: best = (l, sc)
+    P["DC_SCALE"] = best[1]
+    print("DC_SCALE fitted on recent films:", best[1], "(a floor: those films were mostly poorly received)")
+
+def report(title, key, dc=False):
     S = SETS[key]
-    st, _ = stats(S["films"], S["sc"], S["eq"], n=2000)
+    st, _ = stats(S["films"], S["sc"], S["eq"], n=2000, dc=dc)
     print(f"\n== {title} ==\n{'Film':24}{'open':>7}{'(act)':>7}{'WW':>7}{'(act)':>7}{'err':>6}  in p10-p90")
     errs = []
     for f, s, ao, aw in zip(S["films"], st, S["op"], S["ww"]):
@@ -167,7 +192,20 @@ def report(title, key):
     print(f"Mean abs WW error: {mae:.0%} | model total {sum(s['w50'] for s in st):,.0f} vs actual {sum(S['ww']):,.0f}")
     return mae
 
-# ===== 6. DC SLATE (no hand-typed bases; fame + rubric + events differentiate) =====
+def corr(a, b):
+    n = len(a); ma, mb = sum(a)/n, sum(b)/n
+    va = sum((x-ma)**2 for x in a); vb = sum((y-mb)**2 for y in b)
+    return sum((x-ma)*(y-mb) for x, y in zip(a, b)) / math.sqrt(va*vb)
+
+def spread_check(key):
+    S = SETS[key]; st, _ = stats(S["films"], S["sc"], S["eq"], n=500)
+    m = [s["w50"] for s in st]; a = S["ww"]
+    r = corr(m, a)
+    print(f"{key}: max/min model {max(m)/min(m):.1f}x vs actual {max(a)/min(a):.1f}x | "
+          f"correlation {r:.2f} {'OK' if r > .85 else 'LOW'}")
+    return r
+
+# ===== 6. DC SLATE =====
 LG = ["Superman","Batman","Wonder Woman","Flash","Aquaman","Green Lantern"]
 TT = ["Nightwing","Raven","Starfire","Beast Boy","Cyborg"]
 DC_EQ = {"Superman":1.1,"Batman":1.2,"Wonder Woman":1.0,"Flash":.8,"Aquaman":.8,"Green Lantern":.7,
@@ -216,12 +254,11 @@ DC_SC_LIST = [(5,4,3,4,4,1,2),(4,4,3,3,3,1,2),(4,4,2,3,4,1,2),(5,4,3,3,5,2,2),(3
  (5,5,3,5,4,2,3),(3,4,2,3,3,3,2),(3,5,4,4,4,5,3),(3,3,2,3,3,4,3),(4,4,5,5,4,5,4),(4,5,5,5,3,5,4)]
 assert len(DC) == len(DC_SC_LIST) == 31
 DC_S = {f["name"]: s for f, s in zip(DC, DC_SC_LIST)}
-# v3 rescores: the optimistic films lose a point (so the slate isn't skewed toward "great")
 DC_S.update({"Cyborg": (3,3,2,2,3,4,3), "Green Arrow 2": (3,3,2,3,2,5,3),
              "The Flash 2": (3,4,3,3,2,2,3), "Aquaman 2": (3,4,3,2,2,2,3),
              "Batman 2": (3,3,2,3,2,2,3)})
 CHAPTERS = [("Ch1",6),("Ch2",6),("Ch3",7),("Ch4",12)]
-SUPERMAN_2025 = 615   # real cold-start DC anchor ($M WW), from memory: VERIFY
+SUPERMAN_2025 = 615   # real cold-start DC film ($M WW), from memory: VERIFY. PURE CHECK, never fit to it.
 
 # ===== 7. OUTPUT =====
 def walkthrough():
@@ -254,31 +291,46 @@ def scenarios():
          "c) GL&MM hit": {"Green Lantern and Martian Manhunter": "great"},
          "d) all great": {f["name"]: "great" for f in DC},
          "e) Doomsday + Anti-Life flop": {"Superman 5: Doomsday": "bad", "JL: Anti-Life (Part 1)": "bad"}}
-    out = {}
     for label, pins in S.items():
-        print(f"\n### {label}"); out[label] = monte_carlo(n=3000, pins=pins, show=False)["total"]
-    return out
+        print(f"\n### {label}"); monte_carlo(n=3000, pins=pins, show=False)
 
-def checks(ff_mae, mc, flop_total):
+def flop_test(n=2000):
+    """Flop an EARLY film and measure the loss on every film after it."""
+    base = monte_carlo(n=n, show=False)
+    flop = monte_carlo(n=n, pins={"Justice League": "bad"}, show=False)
+    i = [f["name"] for f in DC].index("Justice League")
+    after = lambda m: sum(m["p50s"][i+1:])
+    loss_ = 1 - after(flop) / after(base)
+    print(f"JL flop -> later {len(DC)-i-1} films down {loss_:.0%}")
+    return loss_
+
+def checks(ff_mae, mc, flop_loss, spreads):
     grades = [x["q"] for r in mc["runs"] for x in r]
     bad, great = grades.count("bad")/len(grades), grades.count("great")/len(grades)
-    drop = 1 - flop_total / mc["total"]
     s1 = mc["p50s"][0]
     print("\n===== CHECKS BEFORE TRUSTING A DC NUMBER =====")
     print(f"Holdout (Fast & Furious) WW error < 40%:  {'PASS' if ff_mae < .40 else 'FAIL'} ({ff_mae:.0%})")
     print(f"No film p50 above $2.6B:                  {'PASS' if max(mc['p50s']) < 2600 else 'FAIL'} ({max(mc['p50s']):,.0f})")
-    print(f"Double flop cuts total by more than 7%:   {'PASS' if drop > .07 else 'FAIL'} ({drop:.0%})  [threshold is arbitrary]")
+    print(f"Early flop (JL) cuts later films 8-30%:   {'PASS' if .08 <= flop_loss <= .30 else 'FAIL'} ({flop_loss:.0%})")
     print(f"Random-run grades balanced (bad 12-25%, great <= 1.5x bad): "
           f"{'PASS' if .12 <= bad <= .25 and great <= 1.5*bad else 'FAIL'} (bad {bad:.0%}, great {great:.0%})")
+    print(f"Fit-set correlations > 0.85:              {'PASS' if all(r > .85 for r in spreads) else 'FAIL'} "
+          f"({', '.join(f'{r:.2f}' for r in spreads)})")
     print(f"Superman p50 within 20% of ${SUPERMAN_2025}M:    "
-          f"{'PASS' if abs(s1/SUPERMAN_2025 - 1) <= .20 else 'FAIL'} ({s1:,.0f})  <- independent anchor, not fitted")
+          f"{'PASS' if abs(s1/SUPERMAN_2025 - 1) <= .20 else 'FAIL'} ({s1:,.0f})  <- independent, do NOT tune to it")
+    if abs(s1/SUPERMAN_2025 - 1) > .20:
+        print("  If this fails, report the slate as a range across DC_SCALE 0.54-0.8 instead of picking one.")
 
 if __name__ == "__main__":
-    fit(("MCU", "SW"))                              # fit on MCU + Star Wars only
+    fit(("MCU", "SW"))                              # 1. fit on MCU + Star Wars
+    fit_dc_scale()                                  # 2. DC_SCALE from recent films, not Superman
     report("MCU (in-sample)", "MCU")
     report("STAR WARS (in-sample)", "SW")
     ff = report("FAST & FURIOUS (HELD OUT)", "FF")
+    report("RECENT DC FILMS (used for DC_SCALE)", "RECENT", dc=True)
+    spreads = [spread_check(k) for k in ("MCU", "SW")]
     walkthrough()
     mc = monte_carlo()
-    sc = scenarios()
-    checks(ff, mc, sc["e) Doomsday + Anti-Life flop"])
+    scenarios()
+    fl = flop_test()
+    checks(ff, mc, fl, spreads)
